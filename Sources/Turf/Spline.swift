@@ -4,7 +4,7 @@ import CoreLocation
 #endif
 
 
-struct SplinePoint {
+struct TurfSplinePoint {
     let x: LocationDegrees
     let y: LocationDegrees
     let z: LocationDegrees
@@ -26,18 +26,18 @@ struct SplinePoint {
     }
 }
 
-struct Spline {
-    private let points: [SplinePoint]
+struct TurfSpline {
+    private let points: [TurfSplinePoint]
     private let duration: Int
     private let sharpness: Double
     private let stepLength: Double
     private let length: Int
     private let delay: Int = 0
-    private var centers = [SplinePoint]()
-    private var controls = [(SplinePoint, SplinePoint)]()
+    private var centers = [TurfSplinePoint]()
+    private var controls = [(TurfSplinePoint, TurfSplinePoint)]()
     private var steps = [Int]()
     
-    init?(points: [SplinePoint], duration: Int, sharpness: Double, stepLength: Double = 60) {
+    init?(points: [TurfSplinePoint], duration: Int, sharpness: Double, stepLength: Double = 60) {
         guard points.count >= 2 else { return nil }
         self.points = points
         self.duration = duration
@@ -49,7 +49,7 @@ struct Spline {
         centers = (0..<(points.count - 1)).map { (index) in
             let point = points[index]
             let nextPoint = points[index + 1]
-            let center = SplinePoint(x: (point.x + nextPoint.x) / 2, y: (point.y + nextPoint.y) / 2, z: (point.z + nextPoint.z) / 2)
+            let center = TurfSplinePoint(x: (point.x + nextPoint.x) / 2, y: (point.y + nextPoint.y) / 2, z: (point.z + nextPoint.z) / 2)
             return center
         }
         
@@ -60,10 +60,10 @@ struct Spline {
             let dx = nextPoint.x - (center.x + nextCenter.x) / 2
             let dy = nextPoint.y - (center.y + nextCenter.y) / 2
             let dz = nextPoint.z - (center.z + nextCenter.z) / 2
-            let control1 = SplinePoint(x: (1 - sharpness) * nextPoint.x + sharpness * (center.x + dx),
+            let control1 = TurfSplinePoint(x: (1 - sharpness) * nextPoint.x + sharpness * (center.x + dx),
                                        y: (1 - sharpness) * nextPoint.y + sharpness * (center.y + dy),
                                        z: (1 - sharpness) * nextPoint.z + sharpness * (center.z + dz))
-            let control2 = SplinePoint(x: (1 - sharpness) * nextPoint.x + sharpness * (nextCenter.x + dx),
+            let control2 = TurfSplinePoint(x: (1 - sharpness) * nextPoint.x + sharpness * (nextCenter.x + dx),
                                        y: (1 - sharpness) * nextPoint.y + sharpness * (nextCenter.y + dy),
                                        z: (1 - sharpness) * nextPoint.z + sharpness * (nextCenter.z + dz))
             return (control1, control2)
@@ -87,7 +87,7 @@ struct Spline {
         }
     }
     
-    func position(at time: Int) -> SplinePoint {
+    func position(at time: Int) -> TurfSplinePoint {
         var t = max(0, time - delay)
         if t > duration {
             t = duration - 1
@@ -104,9 +104,9 @@ struct Spline {
     
     //MARK: - Private
     
-    private func bezier(t: Double, p1: SplinePoint, c1: SplinePoint, c2: SplinePoint, p2: SplinePoint) -> SplinePoint {
+    private func bezier(t: Double, p1: TurfSplinePoint, c1: TurfSplinePoint, c2: TurfSplinePoint, p2: TurfSplinePoint) -> TurfSplinePoint {
         let b = B(t)
-        let pos = SplinePoint(x: p2.x * b.0 + c2.x * b.1 + c1.x * b.2 + p1.x * b.3,
+        let pos = TurfSplinePoint(x: p2.x * b.0 + c2.x * b.1 + c1.x * b.2 + p1.x * b.3,
                               y: p2.y * b.0 + c2.y * b.1 + c1.y * b.2 + p1.y * b.3,
                               z: p2.z * b.0 + c2.z * b.1 + c1.z * b.2 + p1.z * b.3)
         return pos

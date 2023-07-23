@@ -8,35 +8,35 @@ import CoreLocation
  
  - Note: [Foreign members](https://datatracker.ietf.org/doc/html/rfc7946#section-6.1) which may be present inside are coded only if used `JSONEncoder` or `JSONDecoder` has `userInfo[.includesForeignMembers] = true`.
  */
-public enum GeoJSONObject: Equatable {
+public enum TurfGeoJSONObject: Equatable {
     /**
      A [Geometry object](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1) represents points, curves, and surfaces in coordinate space.
      
      - parameter geometry: The GeoJSON object as a Geometry object.
      */
-    case geometry(_ geometry: Geometry)
+    case geometry(_ geometry: TurfGeometry)
     
     /**
      A [Feature object](https://datatracker.ietf.org/doc/html/rfc7946#section-3.2) represents a spatially bounded thing.
      
      - parameter feature: The GeoJSON object as a Feature object.
      */
-    case feature(_ feature: Feature)
+    case feature(_ feature: TurfFeature)
     
     /**
      A [FeatureCollection object](https://datatracker.ietf.org/doc/html/rfc7946#section-3.3) is a collection of Feature objects.
      
      - parameter featureCollection: The GeoJSON object as a FeatureCollection object.
      */
-    case featureCollection(_ featureCollection: FeatureCollection)
+    case featureCollection(_ featureCollection: TurfFeatureCollection)
     
     /// Initializes a GeoJSON object representing the given GeoJSON object–convertible instance.
-    public init(_ object: GeoJSONObjectConvertible) {
+    public init(_ object: TurfGeoJSONObjectConvertible) {
         self = object.geoJSONObject
     }
 }
 
-extension GeoJSONObject: Codable {
+extension TurfGeoJSONObject: Codable {
     private enum CodingKeys: String, CodingKey {
         case kind = "type"
     }
@@ -45,12 +45,12 @@ extension GeoJSONObject: Codable {
         let kindContainer = try decoder.container(keyedBy: CodingKeys.self)
         let container = try decoder.singleValueContainer()
         switch try kindContainer.decode(String.self, forKey: .kind) {
-        case Feature.Kind.Feature.rawValue:
-            self = .feature(try container.decode(Feature.self))
-        case FeatureCollection.Kind.FeatureCollection.rawValue:
-            self = .featureCollection(try container.decode(FeatureCollection.self))
+        case TurfFeature.Kind.TurfFeature.rawValue:
+            self = .feature(try container.decode(TurfFeature.self))
+        case TurfFeatureCollection.Kind.TurfFeatureCollection.rawValue:
+            self = .featureCollection(try container.decode(TurfFeatureCollection.self))
         default:
-            self = .geometry(try container.decode(Geometry.self))
+            self = .geometry(try container.decode(TurfGeometry.self))
         }
     }
     
@@ -70,31 +70,31 @@ extension GeoJSONObject: Codable {
 /**
  A type that can be represented as a `GeoJSONObject` instance.
  */
-public protocol GeoJSONObjectConvertible {
+public protocol TurfGeoJSONObjectConvertible {
     /// The instance wrapped in a `GeoJSONObject` instance.
-    var geoJSONObject: GeoJSONObject { get }
+    var geoJSONObject: TurfGeoJSONObject { get }
 }
 
-extension GeoJSONObject: GeoJSONObjectConvertible {
-    public var geoJSONObject: GeoJSONObject { return self }
+extension TurfGeoJSONObject: TurfGeoJSONObjectConvertible {
+    public var geoJSONObject: TurfGeoJSONObject { return self }
 }
 
-extension Geometry: GeoJSONObjectConvertible {
-    public var geoJSONObject: GeoJSONObject { return .geometry(self) }
+extension TurfGeometry: TurfGeoJSONObjectConvertible {
+    public var geoJSONObject: TurfGeoJSONObject { return .geometry(self) }
 }
 
-extension Feature: GeoJSONObjectConvertible {
-    public var geoJSONObject: GeoJSONObject { return .feature(self) }
+extension TurfFeature: TurfGeoJSONObjectConvertible {
+    public var geoJSONObject: TurfGeoJSONObject { return .feature(self) }
 }
 
-extension FeatureCollection: GeoJSONObjectConvertible {
-    public var geoJSONObject: GeoJSONObject { return .featureCollection(self) }
+extension TurfFeatureCollection: TurfGeoJSONObjectConvertible {
+    public var geoJSONObject: TurfGeoJSONObject { return .featureCollection(self) }
 }
 
 /**
  A GeoJSON object that can contain [foreign members](https://datatracker.ietf.org/doc/html/rfc7946#section-6.1) in arbitrary keys.
  */
-public protocol ForeignMemberContainer {
+public protocol TurfForeignMemberContainer {
     /// [Foreign members](https://datatracker.ietf.org/doc/html/rfc7946#section-6.1) to round-trip to JSON.
     ///
     /// Members are coded only if used `JSONEncoder` or `JSONDecoder` has `userInfo[.includesForeignMembers] = true`.
@@ -113,7 +113,7 @@ public extension CodingUserInfoKey {
     static let includesForeignMembers = CodingUserInfoKey(rawValue: "com.mapbox.turf.coding.includesForeignMembers")!
 }
 
-extension ForeignMemberContainer {
+extension TurfForeignMemberContainer {
     /**
      Decodes any foreign members using the given decoder.
      */

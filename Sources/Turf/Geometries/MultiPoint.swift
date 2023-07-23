@@ -4,9 +4,9 @@ import CoreLocation
 #endif
 
 /**
- A [MultiPoint geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.3) represents a collection of disconnected but related positions.
+ A [TurfMultiPoint geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.3) represents a collection of disconnected but related positions.
  */
-public struct MultiPoint: Equatable, ForeignMemberContainer {
+public struct TurfMultiPoint: Equatable, TurfForeignMemberContainer {
     /// The positions at which the multipoint is located.
     public var coordinates: [LocationCoordinate2D]
     
@@ -22,14 +22,14 @@ public struct MultiPoint: Equatable, ForeignMemberContainer {
     }
 }
 
-extension MultiPoint: Codable {
+extension TurfMultiPoint: Codable {
     enum CodingKeys: String, CodingKey {
         case kind = "type"
         case coordinates
     }
     
     enum Kind: String, Codable {
-        case MultiPoint
+        case TurfMultiPoint
     }
     
     public init(from decoder: Decoder) throws {
@@ -42,7 +42,7 @@ extension MultiPoint: Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(Kind.MultiPoint, forKey: .kind)
+        try container.encode(Kind.TurfMultiPoint, forKey: .kind)
         try container.encode(coordinates.codableCoordinates, forKey: .coordinates)
         try encodeForeignMembers(notKeyedBy: CodingKeys.self, to: encoder)
     }

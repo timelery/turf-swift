@@ -8,7 +8,7 @@ let metersPerRadian: LocationDistance = 6_373_000.0
 let equatorialRadius: LocationDistance = 6_378_137
 
 /// A segment between two positions in a `LineString` geometry or `Ring`.
-public typealias LineSegment = (LocationCoordinate2D, LocationCoordinate2D)
+public typealias TurfLineSegment = (LocationCoordinate2D, LocationCoordinate2D)
 
 /**
  Returns the intersection of two line segments.
@@ -17,7 +17,7 @@ public typealias LineSegment = (LocationCoordinate2D, LocationCoordinate2D)
  
  - seealso: `LineString.intersection(with:)`
  */
-public func intersection(_ line1: LineSegment, _ line2: LineSegment) -> LocationCoordinate2D? {
+public func intersection(_ line1: TurfLineSegment, _ line2: TurfLineSegment) -> LocationCoordinate2D? {
     // Ported from https://github.com/Turfjs/turf/blob/142e137ce0c758e2825a260ab32b24db0aa19439/packages/turf-point-on-line/index.js, in turn adapted from http://jsfiddle.net/justin_c_rounds/Gd2S2/light/
     let denominator = ((line2.1.latitude - line2.0.latitude) * (line1.1.longitude - line1.0.longitude))
         - ((line2.1.longitude - line2.0.longitude) * (line1.1.latitude - line1.0.latitude))

@@ -6,7 +6,7 @@ import CoreLocation
 /**
  A [linear ring](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6) is a closed figure bounded by three or more straight line segments.
  */
-public struct Ring {
+public struct TurfRing {
     /// The positions at which the linear ring is located.
     public var coordinates: [LocationCoordinate2D]
     
@@ -104,10 +104,10 @@ public struct Ring {
     }
 }
 
-extension Ring: Codable {
+extension TurfRing: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self = Ring(coordinates: try container.decode([LocationCoordinate2DCodable].self).decodedCoordinates)
+        self = TurfRing(coordinates: try container.decode([LocationCoordinate2DCodable].self).decodedCoordinates)
     }
     
     public func encode(to encoder: Encoder) throws {

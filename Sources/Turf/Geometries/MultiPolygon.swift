@@ -6,16 +6,16 @@ import CoreLocation
 /**
  A [MultiPolygon geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.7) is a collection of `Polygon` geometries that are disconnected but related.
  */
-public struct MultiPolygon: Equatable, ForeignMemberContainer {
+public struct TurfMultiPolygon: Equatable, TurfForeignMemberContainer {
     /// The positions at which the multipolygon is located. Each nested array corresponds to one polygon.
     public var coordinates: [[[LocationCoordinate2D]]]
     
     public var foreignMembers: JSONObject = [:]
     
     /// The polygon geometries that conceptually form the multipolygon.
-    public var polygons: [Polygon] {
-        return coordinates.map { (coordinates) -> Polygon in
-            return Polygon(coordinates)
+    public var polygons: [TurfPolygon] {
+        return coordinates.map { (coordinates) -> TurfPolygon in
+            return TurfPolygon(coordinates)
         }
     }
     
@@ -33,21 +33,21 @@ public struct MultiPolygon: Equatable, ForeignMemberContainer {
      
      - parameter polygons: The polygons that together are coincident to the multipolygon.
      */
-    public init(_ polygons: [Polygon]) {
+    public init(_ polygons: [TurfPolygon]) {
         self.coordinates = polygons.map { (polygon) -> [[LocationCoordinate2D]] in
             return polygon.coordinates
         }
     }
 }
 
-extension MultiPolygon: Codable {
+extension TurfMultiPolygon: Codable {
     enum CodingKeys: String, CodingKey {
         case kind = "type"
         case coordinates
     }
     
     enum Kind: String, Codable {
-        case MultiPolygon
+        case TurfMultiPolygon
     }
     
     public init(from decoder: Decoder) throws {
@@ -60,13 +60,13 @@ extension MultiPolygon: Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(Kind.MultiPolygon, forKey: .kind)
+        try container.encode(Kind.TurfMultiPolygon, forKey: .kind)
         try container.encode(coordinates.codableCoordinates, forKey: .coordinates)
         try encodeForeignMembers(notKeyedBy: CodingKeys.self, to: encoder)
     }
 }
 
-extension MultiPolygon {
+extension TurfMultiPolygon {
     /**
      * Determines if the given coordinate falls within any of the polygons.
      * The optional parameter `ignoreBoundary` will result in the method returning true if the given coordinate

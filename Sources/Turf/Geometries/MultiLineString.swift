@@ -4,9 +4,9 @@ import CoreLocation
 #endif
 
 /**
- A [MultiLineString geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.5) is a collection of `LineString` geometries that are disconnected but related.
+ A [TurfMultiLineString geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.5) is a collection of `LineString` geometries that are disconnected but related.
  */
-public struct MultiLineString: Equatable, ForeignMemberContainer {
+public struct TurfMultiLineString: Equatable, TurfForeignMemberContainer {
     /// The positions at which the multi–line string is located. Each nested array corresponds to one line string.
     public var coordinates: [[LocationCoordinate2D]]
     
@@ -28,19 +28,19 @@ public struct MultiLineString: Equatable, ForeignMemberContainer {
      
      - parameter polygon: The polygon whose linear rings are coincident to the multi–line string.
      */
-    public init(_ polygon: Polygon) {
+    public init(_ polygon: TurfPolygon) {
         self.coordinates = polygon.coordinates
     }
 }
 
-extension MultiLineString: Codable {
+extension TurfMultiLineString: Codable {
     enum CodingKeys: String, CodingKey {
         case kind = "type"
         case coordinates
     }
     
     enum Kind: String, Codable {
-        case MultiLineString
+        case TurfMultiLineString
     }
     
     public init(from decoder: Decoder) throws {
@@ -53,7 +53,7 @@ extension MultiLineString: Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(Kind.MultiLineString, forKey: .kind)
+        try container.encode(Kind.TurfMultiLineString, forKey: .kind)
         try container.encode(coordinates.codableCoordinates, forKey: .coordinates)
         try encodeForeignMembers(notKeyedBy: CodingKeys.self, to: encoder)
     }

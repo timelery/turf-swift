@@ -3,7 +3,7 @@ import Foundation
 /**
  A [feature identifier](https://datatracker.ietf.org/doc/html/rfc7946#section-3.2) identifies a `Feature` object.
  */
-public enum FeatureIdentifier: Hashable {
+public enum TurfFeatureIdentifier: Hashable {
     /// A string.
     case string(_ string: String)
     
@@ -34,7 +34,7 @@ public enum FeatureIdentifier: Hashable {
     }
 }
 
-extension FeatureIdentifier: RawRepresentable {
+extension TurfFeatureIdentifier: RawRepresentable {
     public typealias RawValue = Any
     
     public init?(rawValue: Any) {
@@ -58,25 +58,25 @@ extension FeatureIdentifier: RawRepresentable {
     }
 }
 
-extension FeatureIdentifier: ExpressibleByStringLiteral {
+extension TurfFeatureIdentifier: ExpressibleByStringLiteral {
     public init(stringLiteral value: StringLiteralType) {
         self = .init(value)
     }
 }
 
-extension FeatureIdentifier: ExpressibleByIntegerLiteral {
+extension TurfFeatureIdentifier: ExpressibleByIntegerLiteral {
     public init(integerLiteral value: IntegerLiteralType) {
         self = .init(value)
     }
 }
 
-extension FeatureIdentifier: ExpressibleByFloatLiteral {
+extension TurfFeatureIdentifier: ExpressibleByFloatLiteral {
     public init(floatLiteral value: FloatLiteralType) {
         self = .number(value)
     }
 }
 
-extension FeatureIdentifier: Codable {
+extension TurfFeatureIdentifier: Codable {
     enum CodingKeys: String, CodingKey {
         case string, number
     }

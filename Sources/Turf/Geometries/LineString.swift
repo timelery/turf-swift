@@ -6,7 +6,7 @@ import CoreLocation
 /**
  A [LineString geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.4) is a collection of two or more positions, each position connected to the next position linearly.
  */
-public struct LineString: Equatable, ForeignMemberContainer {
+public struct TurfLineString: Equatable, TurfForeignMemberContainer {
     /// The positions at which the line string is located.
     public var coordinates: [LocationCoordinate2D]
     
@@ -30,26 +30,26 @@ public struct LineString: Equatable, ForeignMemberContainer {
      
      - parameter ring: The linear ring coincident to the line string.
      */
-    public init(_ ring: Ring) {
+    public init(_ ring: TurfRing) {
         self.coordinates = ring.coordinates
     }
     
     /**
      Representation of current `LineString` as an array of `LineSegment`s.
      */
-    var segments: [LineSegment] {
-        return zip(coordinates.dropLast(), coordinates.dropFirst()).map { LineSegment($0.0, $0.1) }
+    var segments: [TurfLineSegment] {
+        return zip(coordinates.dropLast(), coordinates.dropFirst()).map { TurfLineSegment($0.0, $0.1) }
     }
 }
 
-extension LineString: Codable {
+extension TurfLineString: Codable {
     enum CodingKeys: String, CodingKey {
         case kind = "type"
         case coordinates
     }
     
     enum Kind: String, Codable {
-        case LineString
+        case TurfLineString
     }
     
     public init(from decoder: Decoder) throws {
@@ -62,30 +62,30 @@ extension LineString: Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(Kind.LineString, forKey: .kind)
+        try container.encode(Kind.TurfLineString, forKey: .kind)
         try container.encode(coordinates.codableCoordinates, forKey: .coordinates)
         try encodeForeignMembers(notKeyedBy: CodingKeys.self, to: encoder)
     }
 }
 
-extension LineString {
+extension TurfLineString {
     /**
      Returns the line string transformed into an approximation of a curve by applying a Bézier spline algorithm.
      
      This method is equivalent to the [turf-bezier-spline](https://turfjs.org/docs/#bezierSpline) package of Turf.js ([source code](https://github.com/Turfjs/turf/tree/master/packages/turf-bezier-spline/)).
      */
-    public func bezier(resolution: Int = 10000, sharpness: Double = 0.85) -> LineString? {
+    public func bezier(resolution: Int = 10000, sharpness: Double = 0.85) -> TurfLineString? {
         // Ported from https://github.com/Turfjs/turf/blob/1ea264853e1be7469c8b7d2795651c9114a069aa/packages/turf-bezier-spline/index.ts
         let points = coordinates.map {
-            SplinePoint(coordinate: $0)
+            TurfSplinePoint(coordinate: $0)
         }
-        guard let spline = Spline(points: points, duration: resolution, sharpness: sharpness) else {
+        guard let spline = TurfSpline(points: points, duration: resolution, sharpness: sharpness) else {
             return nil
         }
         let coords = stride(from: 0, to: resolution, by: 10)
             .filter { Int(floor(Double($0) / 100)) % 2 == 0 }
             .map { spline.position(at: $0).coordinate }
-        return LineString(coords)
+        return TurfLineString(coords)
     }
     
     /**
@@ -93,7 +93,7 @@ extension LineString {
      
      This method is equivalent to the [turf-line-slice-along](https://turfjs.org/docs/#lineSliceAlong) package of Turf.js ([source code](https://github.com/Turfjs/turf/tree/master/packages/turf-line-slice-along/)).
      */
-    public func trimmed(from startDistance: LocationDistance, to stopDistance: LocationDistance) -> LineString? {
+    public func trimmed(from startDistance: LocationDistance, to stopDistance: LocationDistance) -> TurfLineString? {
         // The method is porting from https://github.com/Turfjs/turf/blob/5375941072b90d489389db22b43bfe809d5e451e/packages/turf-line-slice-along/index.js
         guard startDistance >= 0.0 && stopDistance >= startDistance else { return nil }
         let coordinates = self.coordinates
@@ -107,7 +107,7 @@ extension LineString {
                 let overshoot = startDistance - traveled
                 if overshoot == 0.0 {
                     slice.append(coordinates[i])
-                    return LineString(slice)
+                    return TurfLineString(slice)
                 }
                 let direction = coordinates[i].direction(to: coordinates[i - 1]) - 180
                 let interpolated = coordinates[i].coordinate(at: overshoot, facing: direction)
@@ -118,12 +118,12 @@ extension LineString {
                 let overshoot = stopDistance - traveled
                 if overshoot == 0.0 {
                     slice.append(coordinates[i])
-                    return LineString(slice)
+                    return TurfLineString(slice)
                 }
                 let direction = coordinates[i].direction(to: coordinates[i - 1]) - 180
                 let interpolated = coordinates[i].coordinate(at: overshoot, facing: direction)
                 slice.append(interpolated)
-                return LineString(slice)
+                return TurfLineString(slice)
             }
             
             if traveled >= startDistance {
@@ -131,7 +131,7 @@ extension LineString {
             }
             
             if i == coordinates.count - 1 {
-                return LineString(slice)
+                return TurfLineString(slice)
             }
             
             traveled += coordinates[i].distance(to: coordinates[i + 1])
@@ -140,7 +140,7 @@ extension LineString {
         if traveled < startDistance { return nil }
         
         if let last = coordinates.last {
-            return LineString([last, last])
+            return TurfLineString([last, last])
         }
         
         return nil
@@ -149,7 +149,7 @@ extension LineString {
     /**
      Returns the portion of the line string that begins at the given coordinate and extends the given distance along the line string.
      */
-    public func trimmed(from coordinate: LocationCoordinate2D, distance: LocationDistance) -> LineString? {
+    public func trimmed(from coordinate: LocationCoordinate2D, distance: LocationDistance) -> TurfLineString? {
         let startVertex = closestCoordinate(to: coordinate)
         guard startVertex != nil && distance != 0 else {
             return nil
@@ -188,7 +188,7 @@ extension LineString {
             }
         }
         assert(round(cumulativeDistance) <= round(abs(distance)))
-        return LineString(vertices)
+        return TurfLineString(vertices)
     }
     
     /**
@@ -271,7 +271,7 @@ extension LineString {
      
      This method is equivalent to the [turf-line-slice](https://turfjs.org/docs/#lineSlice) package of Turf.js ([source code](https://github.com/Turfjs/turf/tree/master/packages/turf-line-slice/)).
      */
-    public func sliced(from start: LocationCoordinate2D? = nil, to end: LocationCoordinate2D? = nil) -> LineString? {
+    public func sliced(from start: LocationCoordinate2D? = nil, to end: LocationCoordinate2D? = nil) -> TurfLineString? {
         // Ported from https://github.com/Turfjs/turf/blob/142e137ce0c758e2825a260ab32b24db0aa19439/packages/turf-line-slice/index.js
         guard !coordinates.isEmpty else { return nil }
                 
@@ -290,7 +290,7 @@ extension LineString {
             coords.append(ends.1.coordinate)
         }
         
-        return LineString(coords)
+        return TurfLineString(coords)
     }
     
     /**
@@ -354,11 +354,11 @@ extension LineString {
      - parameter highestQuality: Excludes the distance-based preprocessing step that leads to highest-quality simplification. High-quality simplification runs considerably slower, so consider how much precision is needed in your application.
      - returns: A simplified line string.
      */
-    public func simplified(tolerance: Double = 1.0, highestQuality: Bool = false) -> LineString {
+    public func simplified(tolerance: Double = 1.0, highestQuality: Bool = false) -> TurfLineString {
         // Ported from https://github.com/Turfjs/turf/blob/4e8342acb1dbd099f5e91c8ee27f05fb2647ee1b/packages/turf-simplify/lib/simplify.js
-        guard coordinates.count > 2 else { return LineString(coordinates) }
+        guard coordinates.count > 2 else { return TurfLineString(coordinates) }
 
-        var copy = LineString(coordinates)
+        var copy = TurfLineString(coordinates)
         copy.simplify(tolerance: tolerance, highestQuality: highestQuality)
         return copy
     }
@@ -385,12 +385,12 @@ extension LineString {
      
      - seealso: `Turf.intersection(_:, _:)`
      */
-    public func intersections(with line: LineString) -> [LocationCoordinate2D] {
+    public func intersections(with line: TurfLineString) -> [LocationCoordinate2D] {
         var intersections = Set<HashableCoordinate>()
         for segment1 in segments {
             for segment2 in line.segments {
-                if let intersection = Turf.intersection(LineSegment(segment1.0, segment1.1),
-                                                        LineSegment(segment2.0, segment2.1)) {
+                if let intersection = Turf.intersection(TurfLineSegment(segment1.0, segment1.1),
+                                                        TurfLineSegment(segment2.0, segment2.1)) {
                     intersections.insert(.init(intersection))
                 }
             }

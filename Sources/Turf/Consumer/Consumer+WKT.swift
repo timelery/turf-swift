@@ -275,45 +275,45 @@ struct WKTParser {
             guard let coords = values[1] as? LocationCoordinate2D else {
                 throw WKTError.coordinatesParsingFailed(values)
             }
-            return Point(coords)
+            return TurfPoint(coords)
         case .multiPoint:
             guard values.count > 1 else { return nil }
             let coords = values.suffix(from: 1).compactMap { $0 as? LocationCoordinate2D }
             guard coords.count == values.count - 1 else {
                 throw WKTError.coordinatesParsingFailed(values)
             }
-            return MultiPoint(coords)
+            return TurfMultiPoint(coords)
         case .lineString:
             guard values.count > 1 else { return nil }
             guard let coords = values[1] as? [LocationCoordinate2D] else {
                 throw WKTError.coordinatesParsingFailed(values)
             }
-            return LineString(coords)
+            return TurfLineString(coords)
         case .multiLineString:
             guard values.count > 1 else { return nil }
             guard let coords = values[1] as? [[LocationCoordinate2D]] else {
                 throw WKTError.coordinatesParsingFailed(values)
             }
-            return MultiLineString(coords)
+            return TurfMultiLineString(coords)
         case .polygon:
             guard values.count > 1 else { return nil }
             guard let coords = values[1] as? [[LocationCoordinate2D]] else {
                 throw WKTError.coordinatesParsingFailed(values)
             }
-            return Polygon(coords)
+            return TurfPolygon(coords)
         case .multiPolygon:
             guard values.count > 1 else { return nil }
             guard let coords = values[1] as? [[[LocationCoordinate2D]]] else {
                 throw WKTError.coordinatesParsingFailed(values)
             }
-            return MultiPolygon(coords)
+            return TurfMultiPolygon(coords)
         case .geometryCollection:
             guard values.count > 1 else { return nil }
-            let geometries = values.suffix(from: 1).compactMap { ($0 as? GeometryConvertible)?.geometry }
+            let geometries = values.suffix(from: 1).compactMap { ($0 as? TurfGeometryConvertible)?.geometry }
             guard geometries.count == values.count - 1 else {
                 throw WKTError.geometriesParsingFailed(values)
             }
-            return GeometryCollection(geometries: geometries)
+            return TurfGeometryCollection(geometries: geometries)
         case .object:
             return values.first
         }

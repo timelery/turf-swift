@@ -6,67 +6,67 @@ import CoreLocation
 /**
  A [Geometry object](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1) represents points, curves, and surfaces in coordinate space. Use an instance of this enumeration whenever a value could be any kind of Geometry object.
  */
-public enum Geometry: Equatable {
+public enum TurfGeometry: Equatable {
     /// A single position.
-    case point(_ geometry: Point)
+    case point(_ geometry: TurfPoint)
     
     /// A collection of two or more positions, each position connected to the next position linearly.
-    case lineString(_ geometry: LineString)
+    case lineString(_ geometry: TurfLineString)
     
     /// Conceptually, a collection of `Ring`s that form a single connected geometry.
-    case polygon(_ geometry: Polygon)
+    case polygon(_ geometry: TurfPolygon)
     
     /// A collection of positions that are disconnected but related.
-    case multiPoint(_ geometry: MultiPoint)
+    case multiPoint(_ geometry: TurfMultiPoint)
     
     /// A collection of `LineString` geometries that are disconnected but related.
-    case multiLineString(_ geometry: MultiLineString)
+    case multiLineString(_ geometry: TurfMultiLineString)
     
     /// A collection of `Polygon` geometries that are disconnected but related.
-    case multiPolygon(_ geometry: MultiPolygon)
+    case multiPolygon(_ geometry: TurfMultiPolygon)
     
     /// A heterogeneous collection of geometries that are related.
-    case geometryCollection(_ geometry: GeometryCollection)
+    case geometryCollection(_ geometry: TurfGeometryCollection)
     
     /// Initializes a geometry representing the given geometry–convertible instance.
-    public init(_ geometry: GeometryConvertible) {
+    public init(_ geometry: TurfGeometryConvertible) {
         self = geometry.geometry
     }
 }
 
-extension Geometry: Codable {
+extension TurfGeometry: Codable {
     private enum CodingKeys: String, CodingKey {
         case kind = "type"
     }
     
     enum Kind: String, Codable, CaseIterable {
-        case Point
-        case LineString
-        case Polygon
-        case MultiPoint
-        case MultiLineString
-        case MultiPolygon
-        case GeometryCollection
+        case TurfPoint
+        case TurfLineString
+        case TurfPolygon
+        case TurfMultiPoint
+        case TurfMultiLineString
+        case TurfMultiPolygon
+        case TurfGeometryCollection
     }
     
     public init(from decoder: Decoder) throws {
         let kindContainer = try decoder.container(keyedBy: CodingKeys.self)
         let container = try decoder.singleValueContainer()
         switch try kindContainer.decode(Kind.self, forKey: .kind) {
-        case .Point:
-            self = .point(try container.decode(Point.self))
-        case .LineString:
-            self = .lineString(try container.decode(LineString.self))
-        case .Polygon:
-            self = .polygon(try container.decode(Polygon.self))
-        case .MultiPoint:
-            self = .multiPoint(try container.decode(MultiPoint.self))
-        case .MultiLineString:
-            self = .multiLineString(try container.decode(MultiLineString.self))
-        case .MultiPolygon:
-            self = .multiPolygon(try container.decode(MultiPolygon.self))
-        case .GeometryCollection:
-            self = .geometryCollection(try container.decode(GeometryCollection.self))
+        case .TurfPoint:
+            self = .point(try container.decode(TurfPoint.self))
+        case .TurfLineString:
+            self = .lineString(try container.decode(TurfLineString.self))
+        case .TurfPolygon:
+            self = .polygon(try container.decode(TurfPolygon.self))
+        case .TurfMultiPoint:
+            self = .multiPoint(try container.decode(TurfMultiPoint.self))
+        case .TurfMultiLineString:
+            self = .multiLineString(try container.decode(TurfMultiLineString.self))
+        case .TurfMultiPolygon:
+            self = .multiPolygon(try container.decode(TurfMultiPolygon.self))
+        case .TurfGeometryCollection:
+            self = .geometryCollection(try container.decode(TurfGeometryCollection.self))
         }
     }
     
@@ -94,39 +94,39 @@ extension Geometry: Codable {
 /**
  A type that can be represented as a `Geometry` instance.
  */
-public protocol GeometryConvertible {
+public protocol TurfGeometryConvertible {
     /// The instance wrapped in a `Geometry` instance.
-    var geometry: Geometry { get }
+    var geometry: TurfGeometry { get }
 }
 
-extension Geometry: GeometryConvertible {
-    public var geometry: Geometry { return self }
+extension TurfGeometry: TurfGeometryConvertible {
+    public var geometry: TurfGeometry { return self }
 }
 
-extension Point: GeometryConvertible {
-    public var geometry: Geometry { return .point(self) }
+extension TurfPoint: TurfGeometryConvertible {
+    public var geometry: TurfGeometry { return .point(self) }
 }
 
-extension LineString: GeometryConvertible {
-    public var geometry: Geometry { return .lineString(self) }
+extension TurfLineString: TurfGeometryConvertible {
+    public var geometry: TurfGeometry { return .lineString(self) }
 }
 
-extension Polygon: GeometryConvertible {
-    public var geometry: Geometry { return .polygon(self) }
+extension TurfPolygon: TurfGeometryConvertible {
+    public var geometry: TurfGeometry { return .polygon(self) }
 }
 
-extension MultiPoint: GeometryConvertible {
-    public var geometry: Geometry { return .multiPoint(self) }
+extension TurfMultiPoint: TurfGeometryConvertible {
+    public var geometry: TurfGeometry { return .multiPoint(self) }
 }
 
-extension MultiLineString: GeometryConvertible {
-    public var geometry: Geometry { return .multiLineString(self) }
+extension TurfMultiLineString: TurfGeometryConvertible {
+    public var geometry: TurfGeometry { return .multiLineString(self) }
 }
 
-extension MultiPolygon: GeometryConvertible {
-    public var geometry: Geometry { return .multiPolygon(self) }
+extension TurfMultiPolygon: TurfGeometryConvertible {
+    public var geometry: TurfGeometry { return .multiPolygon(self) }
 }
 
-extension GeometryCollection: GeometryConvertible {
-    public var geometry: Geometry { return .geometryCollection(self) }
+extension TurfGeometryCollection: TurfGeometryConvertible {
+    public var geometry: TurfGeometry { return .geometryCollection(self) }
 }

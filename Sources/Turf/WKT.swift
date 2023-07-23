@@ -8,7 +8,7 @@ public protocol WKTConvertible {
     init(wkt: String) throws
 }
 
-extension Point: WKTConvertible {
+extension TurfPoint: WKTConvertible {
     public var wkt: String {
         return "POINT(\(coordinates.longitude) \(coordinates.latitude))"
     }
@@ -18,7 +18,7 @@ extension Point: WKTConvertible {
     }
 }
 
-extension MultiPoint: WKTConvertible {
+extension TurfMultiPoint: WKTConvertible {
     public var wkt: String {
         return "MULTIPOINT\(coordinates.wktCoordinatesString)"
     }
@@ -28,7 +28,7 @@ extension MultiPoint: WKTConvertible {
     }
 }
 
-extension LineString: WKTConvertible {
+extension TurfLineString: WKTConvertible {
     public var wkt: String {
         return "LINESTRING\(coordinates.wktCoordinatesString)"
     }
@@ -38,7 +38,7 @@ extension LineString: WKTConvertible {
     }
 }
 
-extension MultiLineString: WKTConvertible {
+extension TurfMultiLineString: WKTConvertible {
     public var wkt: String {
         return "MULTILINESTRING\(coordinates.wktCoordinatesString)"
     }
@@ -48,7 +48,7 @@ extension MultiLineString: WKTConvertible {
     }
 }
 
-extension Polygon: WKTConvertible {
+extension TurfPolygon: WKTConvertible {
     public var wkt: String {
         return "POLYGON\(coordinates.wktCoordinatesString)"
     }
@@ -58,7 +58,7 @@ extension Polygon: WKTConvertible {
     }
 }
 
-extension MultiPolygon: WKTConvertible {
+extension TurfMultiPolygon: WKTConvertible {
     public var wkt: String {
         return "MULTIPOLYGON\(coordinates.wktCoordinatesString)"
     }
@@ -68,7 +68,7 @@ extension MultiPolygon: WKTConvertible {
     }
 }
 
-extension Geometry: WKTConvertible {
+extension TurfGeometry: WKTConvertible {
     public var wkt: String {
         switch self {
         case .point(let geometry):
@@ -89,12 +89,12 @@ extension Geometry: WKTConvertible {
     }
     
     public init(wkt: String) throws {
-        let object: GeometryConvertible = try WKTParser.parse(wkt)
+        let object: TurfGeometryConvertible = try WKTParser.parse(wkt)
         self = object.geometry
     }
 }
 
-extension GeometryCollection: WKTConvertible {
+extension TurfGeometryCollection: WKTConvertible {
     public var wkt: String {
         let geometriesWKT = geometries.map {
             switch $0 {

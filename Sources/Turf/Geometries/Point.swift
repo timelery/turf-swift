@@ -6,7 +6,7 @@ import CoreLocation
 /**
  A [Point geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.2) represents a single position.
  */
-public struct Point: Equatable, ForeignMemberContainer {
+public struct TurfPoint: Equatable, TurfForeignMemberContainer {
     /**
      The position at which the point is located.
      
@@ -26,7 +26,7 @@ public struct Point: Equatable, ForeignMemberContainer {
     }
 }
 
-extension Point: Codable {
+extension TurfPoint: Codable {
     enum CodingKeys: String, CodingKey {
         case kind = "type"
         case coordinates

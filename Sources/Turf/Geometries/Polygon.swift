@@ -4,9 +4,9 @@ import CoreLocation
 #endif
 
 /**
- A [Polygon geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6) is conceptually a collection of `Ring`s that form a single connected geometry.
+ A [TurfPolygon geometry](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.6) is conceptually a collection of `Ring`s that form a single connected geometry.
  */
-public struct Polygon: Equatable, ForeignMemberContainer {
+public struct TurfPolygon: Equatable, TurfForeignMemberContainer {
     /// The positions at which the polygon is located. Each nested array corresponds to one linear ring.
     public var coordinates: [[LocationCoordinate2D]]
     
@@ -29,7 +29,7 @@ public struct Polygon: Equatable, ForeignMemberContainer {
      - parameter outerRing: The outer linear ring.
      - parameter innerRings: The inner linear rings that define “holes” in the polygon.
      */
-    public init(outerRing: Ring, innerRings: [Ring] = []) {
+    public init(outerRing: TurfRing, innerRings: [TurfRing] = []) {
         self.coordinates = ([outerRing] + innerRings).map { $0.coordinates }
     }
 
@@ -58,14 +58,14 @@ public struct Polygon: Equatable, ForeignMemberContainer {
     }
 }
 
-extension Polygon: Codable {
+extension TurfPolygon: Codable {
     enum CodingKeys: String, CodingKey {
         case kind = "type"
         case coordinates
     }
     
     enum Kind: String, Codable {
-        case Polygon
+        case TurfPolygon
     }
     
     public init(from decoder: Decoder) throws {
@@ -78,22 +78,22 @@ extension Polygon: Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(Kind.Polygon, forKey: .kind)
+        try container.encode(Kind.TurfPolygon, forKey: .kind)
         try container.encode(coordinates.codableCoordinates, forKey: .coordinates)
         try encodeForeignMembers(notKeyedBy: CodingKeys.self, to: encoder)
     }
 }
 
-extension Polygon {
-    /// Representation of `Polygon`s coordinates of inner rings
-    public var innerRings: [Ring] {
-        return Array(coordinates.suffix(from: 1)).map { Ring(coordinates: $0) }
+extension TurfPolygon {
+    /// Representation of `TurfPolygon`s coordinates of inner rings
+    public var innerRings: [TurfRing] {
+        return Array(coordinates.suffix(from: 1)).map { TurfRing(coordinates: $0) }
     }
     
-    /// Representation of `Polygon`s coordinates of outer ring
-    public var outerRing: Ring {
+    /// Representation of `TurfPolygon`s coordinates of outer ring
+    public var outerRing: TurfRing {
         get {
-            return Ring(coordinates: coordinates.first! )
+            return TurfRing(coordinates: coordinates.first! )
         }
     }
     
@@ -138,7 +138,7 @@ extension Polygon {
      
      - note: The returned polygon may be a degenerate polygon.
      */
-    public func smooth(iterations: Int = 3) -> Polygon {
+    public func smooth(iterations: Int = 3) -> TurfPolygon {
         // Ported from https://github.com/Turfjs/turf/blob/402716a29f6ae16bf3d0220e213e5380cc5a50c4/packages/turf-polygon-smooth/index.js
         var poly = self
         var tempOutput: [[LocationCoordinate2D]] = [[]];
@@ -148,17 +148,17 @@ extension Polygon {
             tempOutput = [[]]
             
             if (i > 0) {
-                poly = Polygon(outCoords);
+                poly = TurfPolygon(outCoords);
             }
 
             processPolygon(poly, &tempOutput);
             outCoords = tempOutput
         })
 
-        return Polygon(outCoords);
+        return TurfPolygon(outCoords);
     }
 
-    private func processPolygon(_ poly: Polygon, _ tempOutput: inout [[LocationCoordinate2D]]) {
+    private func processPolygon(_ poly: TurfPolygon, _ tempOutput: inout [[LocationCoordinate2D]]) {
         var coordIndex = 0
         var prevGeomIndex = 0;
         var geometryIndex = 0;
@@ -208,9 +208,9 @@ extension Polygon {
      - parameter highestQuality: Excludes the distance-based preprocessing step that leads to highest-quality simplification. High-quality simplification runs considerably slower, so consider how much precision is needed in your application.
      - returns: A simplified polygon.
      */
-    public func simplified(tolerance: Double = 1.0, highestQuality: Bool = false) -> Polygon {
+    public func simplified(tolerance: Double = 1.0, highestQuality: Bool = false) -> TurfPolygon {
         // Ported from https://github.com/Turfjs/turf/blob/89505bf5df83dfde95a96de7c9abcdfd22ce5f63/packages/turf-simplify/lib/simplify.js
-        var copy = Polygon(coordinates)
+        var copy = TurfPolygon(coordinates)
         copy.simplify(tolerance: tolerance, highestQuality: highestQuality)
         return copy
     }
